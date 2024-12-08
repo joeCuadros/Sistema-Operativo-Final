@@ -45,3 +45,6 @@ build.sh
 - limine_request.h  
 - bootservices.h, bootservices.c  = servicio de bootloader 
 - kernel.c = archivo principal para ejecutar
+## printtf 
+- printf.h, printf.c = Modulos importantes para imprimir en pantalla
+- kernel_print.h, kernel_print.c = Modulo implementado para imprimir caracter

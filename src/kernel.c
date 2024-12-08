@@ -1,4 +1,5 @@
-#include "bootservices.h"
+#include "bootloader/bootservices.h"
+#include "printf/printf.h" 
 #define MAX_STRING_SIZE 655536
 
 
@@ -9,11 +10,11 @@ uint64_t strlen(const char* str){
         len++;
     return len;
 }
-
+/* 
 void print(const char* str){
     void (*writer)(const char*, uint64_t) = escribir_terminal();
     writer(str, strlen(str));
-}
+}*/
 
 void descansar(){
      while(1) {
@@ -22,7 +23,7 @@ void descansar(){
 }
 
 void _start() {
-    print("Hola mundo desde DumpOS\n");
-    print("A mimir ");
+    printf("Hola mundo desde DumpOS\n");
+    printf("Disposiciones tecnicas: bootloader=%s, version=%s\n",obtener_bootloader_nombre(),obtener_bootloader_version());
     descansar();
 }

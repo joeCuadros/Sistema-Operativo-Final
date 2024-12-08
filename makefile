@@ -7,6 +7,7 @@ override IMG := limine-cd.img
 # directorios
 BUILDDIR := build/bin
 OBJDIR := build/lib
+BUILDHOME := build
 ISOBUILDDIR := build/iso_root
 ISODIR := build/image
 LMNREPO := https://github.com/limine-bootloader/limine.git
@@ -30,8 +31,10 @@ GDBPORT ?= 1234
 # flag de compilacion
 #QFLAGSEXP ?= -cpu qemu64 -machine q35 -m 512 -boot d -d cpu_reset -drive if=pflash,format=raw,unit=0,file=./OVMFbin/OVMF_CODE-pure-efi.fd,readonly=on -drive if=pflash,format=raw,unit=1,file=./OVMFbin/OVMF_VARS-pure-efi.fd -net none -drive file=
 QFLAGSEXP ?= -cpu qemu64 -machine q35 -m 512 -boot d -d cpu_reset -drive if=pflash,format=raw,unit=0,file=./OVMFbin/OVMF_CODE-pure-efi.fd,readonly=on -drive if=pflash,format=raw,unit=1,file=./OVMFbin/OVMF_VARS-pure-efi.fd -net none -drive file=
-CFLAGS ?= -O2 -g -Wall -Wextra -Wpedantic -pipe -std=c11
+CFLAGS ?= -O2 -g -Wall -Wextra -Wpedantic -pipe -std=c11 -fno-stack-protector
 NASMFLAGS ?= -F dwarf -g
+
+
 
 # Archivos
 override CFILES :=$(call rwildcard,$(SRCDIR),*.c) 
@@ -45,7 +48,8 @@ override LDFLAGS +=         \
     -nostdlib               \
     -static                 \
     -z max-page-size=0x1000 \
-    -T linker.ld
+    -T linker.ld			
+	
 # reglas de compilacion
 $(OBJDIR)/%.o: $(SRCDIR)/%.c
 	@ mkdir -p $(@D)
@@ -90,6 +94,11 @@ clean:
 	@rm -f $(ISOBUILDDIR)/$(LIMINECFG)
 	@rm -f $(BUILDDIR)/$(KERNEL)
 	@rm -f $(ISODIR)/$(ISO)
+
+cleansetup:
+	@rm -rf $(BUILDHOME)
+	@rm -f debug.gdb
+	@rm -rf $(LMNDIR)
 
 kernel: $(OBJS) link
 
