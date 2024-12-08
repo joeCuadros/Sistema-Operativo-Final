@@ -34,7 +34,7 @@ build.sh
 ## Informacion de los archivos
 
 ### limine = descargado desde git 
-### OVMFbin = descargado desde git
+### OVMFbin = Sistema de arranque ()
 ### principal
 - linker.ld = construir kernel a ELF64 
 - startup.nsh = inicializa y gestiona el arranque del sistema operativo
