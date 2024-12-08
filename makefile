@@ -67,7 +67,7 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.c
 run:
 	@echo "Construir kernel..."
 	@make kernel
-	@echo "Construir ISO..."
+	@echo "Construir img..."
 	@make buildimgexp
 	@echo "Ejecutar QEMU..."
 	@make run_exp

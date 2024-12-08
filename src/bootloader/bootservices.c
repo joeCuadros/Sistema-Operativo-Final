@@ -17,7 +17,7 @@ void error_servicio(){
     }
 }
 
-// Codigo a usar 
+// Bootloader
 char * obtener_bootloader_nombre(){
     return LLAMAR_SERVICIO(BOOTLOADER)->name;
 }
@@ -33,7 +33,20 @@ uint64_t obtener_contador_terminal(){
 uint64_t obtener_terminal_actual(){
     return terminal_actual;
 }
-
+//Memoria 
+uint64_t obtener_memoria_map_entrada(){
+    return LLAMAR_SERVICIO(MEMMAP)->entry_count;
+}
+uint64_t obtener_memoria_map_base(uint64_t entry){
+    return LLAMAR_SERVICIO(MEMMAP)->entries[entry]->base;  
+}
+uint64_t obtener_memoria_map_longitud(uint64_t entry){
+    return LLAMAR_SERVICIO(MEMMAP)->entries[entry]->length; 
+}
+uint64_t obtener_memoria_map_tipo(uint64_t entry){
+    return LLAMAR_SERVICIO(MEMMAP)->entries[entry]->type;  
+}
+//Terminal
 void establecer_terminal(uint64_t terminal){
     if (terminal > obtener_contador_terminal()){
         error_servicio(); //invocar error
