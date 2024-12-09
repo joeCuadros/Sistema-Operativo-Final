@@ -18,5 +18,7 @@ struct uefi_memory_region {
 };
 
 void iniciar_memoria();
-//void cargar_memoria_descriptor(struct uefi_memory_region* region);
+void * solicitar_pagina ();
+void liberar_pagina(void* direccion);
+
 #endif

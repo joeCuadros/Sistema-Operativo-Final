@@ -30,10 +30,10 @@ WSLHOSTIP := $(shell ipconfig.exe | grep 'vEthernet (WSL)' -a -A4 | tail -n1 | c
 GDBPORT ?= 1234
 # flag de compilacion
 #QFLAGSEXP ?= -cpu qemu64 -machine q35 -m 512 -boot d -d cpu_reset -drive if=pflash,format=raw,unit=0,file=./OVMFbin/OVMF_CODE-pure-efi.fd,readonly=on -drive if=pflash,format=raw,unit=1,file=./OVMFbin/OVMF_VARS-pure-efi.fd -net none -drive file=
-QFLAGSEXP ?= -cpu qemu64 -machine q35 -m 512 -boot d -d cpu_reset -drive if=pflash,format=raw,unit=0,file=./OVMFbin/OVMF_CODE-pure-efi.fd,readonly=on -drive if=pflash,format=raw,unit=1,file=./OVMFbin/OVMF_VARS-pure-efi.fd -net none -drive file=
+# -m <num> (num -> ram)
+QFLAGSEXP ?= -cpu qemu64 -machine q35 -m 256 -boot d -d cpu_reset -drive if=pflash,format=raw,unit=0,file=./OVMFbin/OVMF_CODE-pure-efi.fd,readonly=on -drive if=pflash,format=raw,unit=1,file=./OVMFbin/OVMF_VARS-pure-efi.fd -net none -drive file=
 CFLAGS ?= -O2 -g -Wall -Wextra -Wpedantic -pipe -std=c11 -fno-stack-protector
 NASMFLAGS ?= -F dwarf -g
-
 
 
 # Archivos
@@ -120,7 +120,8 @@ link:
 
 
 help:
-	@echo "make run = Ejecutar" 
+	@echo "make run = Compilar y ejecutar" 
 	@echo "make clean = Limpiar" 
-	@echo "make setup " 
-
+	@echo "make setup = inicializar carpeta y archivos necesarios " 
+	@echo "make cleansetup = limpiar setup " 
+	@echo "make run_exp = Solo ejecutar " 

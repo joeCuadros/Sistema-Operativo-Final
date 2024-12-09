@@ -48,3 +48,8 @@ build.sh
 ## printtf 
 - printf.h, printf.c = Modulos importantes para imprimir en pantalla
 - kernel_print.h, kernel_print.c = Modulo implementado para imprimir caracter
+## memoria
+- memoria.h, memoria.c = Inicializar, solicitar y liberar memoria 
+## util
+- string.h, string.c = Usar string (Falta terminar la programacion)
+- error.h, error.c = Implementacion de error 
