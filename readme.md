@@ -1,5 +1,7 @@
 # Trabajo final de Sistema Operativo
-dumpOS -> Sistemas operativos
+dumpOS -> Sistemas operativo (se puede cambiar)
+- kernel.c -->
+- limine.cfg 
 
 ## Componentes para la compilacion
 - makefile
@@ -53,3 +55,6 @@ build.sh
 ## util
 - string.h, string.c = Usar string (Falta terminar la programacion)
 - error.h, error.c = Implementacion de error 
+## io
+- idt.h, idt.c = Tabla de descriptores de interrupciones
+- interrupciones.h, interrupciones.c = Control de interrupciones, trap, etc

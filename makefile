@@ -30,11 +30,28 @@ WSLHOSTIP := $(shell ipconfig.exe | grep 'vEthernet (WSL)' -a -A4 | tail -n1 | c
 GDBPORT ?= 1234
 # flag de compilacion
 #QFLAGSEXP ?= -cpu qemu64 -machine q35 -m 512 -boot d -d cpu_reset -drive if=pflash,format=raw,unit=0,file=./OVMFbin/OVMF_CODE-pure-efi.fd,readonly=on -drive if=pflash,format=raw,unit=1,file=./OVMFbin/OVMF_VARS-pure-efi.fd -net none -drive file=
-# -m <num> (num -> ram)
+# -m <num> (num  ram)
 QFLAGSEXP ?= -cpu qemu64 -machine q35 -m 256 -boot d -d cpu_reset -drive if=pflash,format=raw,unit=0,file=./OVMFbin/OVMF_CODE-pure-efi.fd,readonly=on -drive if=pflash,format=raw,unit=1,file=./OVMFbin/OVMF_VARS-pure-efi.fd -net none -drive file=
-CFLAGS ?= -O2 -g -Wall -Wextra -Wpedantic -pipe -std=c11 -fno-stack-protector
+CFLAGS ?= -O2 -g -Wall -Wextra -Wpedantic -pipe -std=c11
 NASMFLAGS ?= -F dwarf -g
 
+override CFLAGS +=       \
+    -I.                  \
+    -std=c11             \
+    -ffreestanding       \
+    -fno-stack-protector \
+    -fno-stack-check     \
+    -fno-pie             \
+    -fno-pic             \
+    -m64                 \
+    -march=x86-64        \
+    -mabi=sysv           \
+    -mno-80387           \
+    -mno-red-zone        \
+	-g                   \
+    -mcmodel=kernel      \
+    -MMD
+override CFLAGS += $(CEXTRA)
 
 # Archivos
 override CFILES :=$(call rwildcard,$(SRCDIR),*.c) 
@@ -49,6 +66,7 @@ override LDFLAGS +=         \
     -static                 \
     -z max-page-size=0x1000 \
     -T linker.ld			
+	
 	
 # reglas de compilacion
 $(OBJDIR)/%.o: $(SRCDIR)/%.c

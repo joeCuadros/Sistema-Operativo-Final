@@ -1,6 +1,7 @@
 #include "bootloader/bootservices.h"
 #include "printf/printf.h" 
 #include "memoria/memoria.h"
+#include "io/interrupciones.h"
 
 void descansar(){
     while(1) {
@@ -10,15 +11,12 @@ void descansar(){
 
 void _start() {   
     iniciar_memoria();
+    iniciar_interrupciones();
     
-    void * pagina1 = solicitar_pagina();
-    printf("Pagina 1: %p\n", pagina1);
-    void * pagina2 = solicitar_pagina();
-    printf("Pagina 2: %p\n", pagina2);
-    liberar_pagina(pagina2);
-    printf("Se libero pagina 2");
-    void * pagina3 = solicitar_pagina();
-    printf("Pagina 1: %p\n", pagina3);
     printf("Hola mundo desde DumpOS\n");
     descansar();
 }
+
+/* Para probar error 
+uint64_t * ptr = (uint64_t*)0xffffffffdeadb000;
+*ptr = 0xdeadbeef;*/
