@@ -5,4 +5,5 @@
 
 uint64_t len(const char* str);
 void llenar_memoria(void* ptr, char c, uint64_t size);
+
 #endif

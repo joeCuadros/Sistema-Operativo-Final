@@ -8,3 +8,6 @@ void kernel_panic(const char* str){
         __asm__ ("hlt"); 
     } 
 }
+void error_kernel(const uint32_t pid, const char* tipo, const char* str){
+    printf("pid [%llx] Error (%s): %s\n",pid,tipo, str);
+}

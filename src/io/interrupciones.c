@@ -38,7 +38,7 @@ void set_idt_handler(uint64_t direccion, uint8_t entrada_offset, uint8_t tipo, u
 void iniciar_interrupciones(){
     __asm__("cli"); //deshabilitar interrupciones
     idtr.limite = 256 * sizeof(struct InterruptDescriptor64) - 1;
-    idtr.offset = (uint64_t) solicitar_pagina();
+    idtr.offset = (uint64_t) solicitar_marco(0);
     llenar_memoria((void*)idtr.offset, 0, 256 * sizeof(struct InterruptDescriptor64));
     
     for(int i=0; i < 256; i++){
