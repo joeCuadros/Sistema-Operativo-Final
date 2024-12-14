@@ -6,6 +6,8 @@
 #include "idt.h"
 #include "bajo_nivel.h"
 #include "../entrada/teclado.h"
+#include "../planificador/planificador.h"
+
 
 #define PIC1_COMMAND 0x20
 #define PIC1_DATA 0x21
@@ -19,14 +21,12 @@
 
 struct idtr idtr;
 
+// notifica q termino la interrupcion
 void pic_end_master(){
 	outb(PIC1_COMMAND, PIC_EOI);
 }
 
-void pic_end_slave(){
-    outb(PIC2_COMMAND, PIC_EOI);
-	outb(PIC1_COMMAND, PIC_EOI);
-}
+// remapear las interrupciones
 void remap_pic(){
 	uint8_t a1, a2;
 	a1 = inb(PIC1_DATA);
@@ -82,7 +82,15 @@ __attribute__((interrupt, target("no-sse", "no-mmx", "no-3dnow"))) void Int_tecl
     (void)marco;
     uint8_t codigo = inb(0x60);
     recibir_codigo(codigo);
-    pic_end_master();
+    pic_end_master(); // Finalizar interrupcion en el PIC
+}
+__attribute__((interrupt, target("no-sse", "no-mmx", "no-3dnow"))) void Int_timer(struct marco_interrupciones* marco){
+    outb(PIC1_DATA,0x80); //deshabilitar teclado    1000 0000
+    (void)marco;
+    aumentar_timer();
+    pic_end_master(); // Finalizar interrupcion en el PIC
+    outb(PIC1_DATA,0xC0); //habilitar teclado       1100 0000
+
 }
 
 void set_idt_handler(uint64_t direccion, uint8_t entrada_offset, uint8_t tipo, uint8_t selector){
@@ -99,18 +107,16 @@ void iniciar_interrupciones(){
     idtr.limite = 256 * sizeof(struct InterruptDescriptor64) - 1;
     idtr.offset = (uint64_t) solicitar_marco(0);
     llenar_memoria((void*)idtr.offset, 0, 4096);
-    /*
-    for(int i=0; i < 256; i++){
-        set_idt_handler((uint64_t)Excepcion_General, i,ITD_TA_Interrupcion,0x28); //0x28 selector de limine    
-    }*/
     // para futura implementaciones https://wiki.osdev.org/Interrupt_Vector_Table
     set_idt_handler((uint64_t)Fallo_pagina,0x0E,ITD_TA_Interrupcion,0x28);
     set_idt_handler((uint64_t)double_fault,0x08,ITD_TA_Interrupcion,0x28);
+    set_idt_handler((uint64_t)Int_timer,0x20,ITD_TA_Interrupcion,0x28);
     set_idt_handler((uint64_t)Int_teclado,0x21,ITD_TA_Interrupcion,0x28);
     __asm__ volatile("lidt %0" : : "m"(idtr));
     remap_pic();
+    iniciar_timer(1);
     iniciar_teclado();
-    outb(PIC1_DATA,0xf9);
+    outb(PIC1_DATA,0x80); // IRQ 0 (timer) IRQ1 (teclado) 1000 0000 
 	outb(PIC2_DATA,0xef);
     printf("Terminando las interrupciones \n");
     __asm__("sti"); //habilitar interrupciones

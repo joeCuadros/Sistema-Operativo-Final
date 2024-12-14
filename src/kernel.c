@@ -21,10 +21,9 @@ struct datos {
 void _start() {   
     iniciar_memoria();
     iniciar_interrupciones();
-    
     // colocar
     printf("Ejecutando despues la configuracion inicial\n");
-
+    /*
     uint32_t pid1 = 1;
     uint32_t pid2 = 2;
     uint32_t pid3 = 3;
@@ -41,7 +40,7 @@ void _start() {
     leer_marco(&nuevoDatos,marco,pid2);
     printf("id: %u\nvalor: %u\n", nuevoDatos.id, nuevoDatos.valor); 
     ver_permisos(marco2);
-
+    */
     descansar(); //dormir
 }
 

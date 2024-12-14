@@ -22,6 +22,7 @@ void iniciar_teclado(){
     teclado->Der_Shift_estado = 0;
     teclado->enter_teclado = 0;
     evento_teclado = 0;
+    printf("Configuracion de teclado completo\n");
 }
 
 char codigo_caracter(uint8_t codigo, uint8_t mayuscula){
@@ -64,7 +65,6 @@ void recibir_codigo(uint8_t codigo){
     }
 }
 
-void esperar_enter();
 void habilitar_teclado(void (*funsion_teclado)(uint8_t)){
     evento_teclado = funsion_teclado;
 }
