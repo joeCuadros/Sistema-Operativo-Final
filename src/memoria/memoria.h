@@ -22,7 +22,7 @@ struct permisos{
     uint8_t ejecutable : 1;  // 1 bit para ejecutable
 };
 
-struct marco_info{
+struct pagina_info{
     uint8_t estado : 1; // 0 libre, 1 = bloqueado
     struct permisos usuario;
     struct permisos demas;
@@ -31,11 +31,11 @@ struct marco_info{
 
 
 void iniciar_memoria();
-// solicitudes de marcos
-void * solicitar_marco (uint32_t pid);
-void liberar_marco(void* direccion,uint32_t pid);
-void leer_marco(void* destino, void* direccion_marco,uint32_t pid);
-void escribir_marco(void* direccion_marco, void* origen,uint32_t pid);
+// solicitudes de paginas
+void * solicitar_pagina (uint32_t pid);
+void liberar_pagina(void* direccion,uint32_t pid);
+void leer_pagina(void* destino, void* direccion_pagina,uint32_t pid);
+void escribir_pagina(void* direccion_pagina, void* origen,uint32_t pid);
 // permisos
 void ver_permisos (void* direccion);
 void set_usuario (void* direccion, struct permisos usuario_nuevo, uint32_t pid);

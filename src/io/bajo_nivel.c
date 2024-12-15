@@ -13,3 +13,11 @@ uint8_t inb(uint16_t port){
 void io_wait() {
     __asm__ volatile ("outb %%al, $0x80"::"a"(0));
 }
+// deshabiliar 
+void cli_asm(){
+    __asm__ volatile("cli");
+} 
+//habilitar
+void sti_asm(){
+    __asm__ volatile("sti");
+} 

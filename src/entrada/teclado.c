@@ -2,7 +2,6 @@
 #include "../memoria/memoria.h"
 #include "../util/string.h"
 #include "../printf/printf.h"
-#define MAXIMO_MARCO 4096
 
 volatile struct Teclado* teclado;
 void (*evento_teclado)(uint8_t);
@@ -15,7 +14,7 @@ char asciitabla[] = {
 };
 
 void iniciar_teclado(){
-    teclado = (struct Teclado *) solicitar_marco(0);
+    teclado = (struct Teclado *) solicitar_pagina(0);
     teclado->ASCII_tabla = asciitabla;
     // estados iniciales
     teclado->Izq_Shift_estado = 0;

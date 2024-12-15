@@ -85,11 +85,11 @@ __attribute__((interrupt, target("no-sse", "no-mmx", "no-3dnow"))) void Int_tecl
     pic_end_master(); // Finalizar interrupcion en el PIC
 }
 __attribute__((interrupt, target("no-sse", "no-mmx", "no-3dnow"))) void Int_timer(struct marco_interrupciones* marco){
-    outb(PIC1_DATA,0x80); //deshabilitar teclado    1000 0000
+    cli_asm(); //deshabilitar interrupciones 
     (void)marco;
     aumentar_timer();
     pic_end_master(); // Finalizar interrupcion en el PIC
-    outb(PIC1_DATA,0xC0); //habilitar teclado       1100 0000
+    sti_asm(); //habilitar interrupciones
 
 }
 
@@ -105,7 +105,7 @@ void iniciar_interrupciones(){
     __asm__("cli"); //deshabilitar interrupciones
     printf("Iniciando las interrupciones \n");
     idtr.limite = 256 * sizeof(struct InterruptDescriptor64) - 1;
-    idtr.offset = (uint64_t) solicitar_marco(0);
+    idtr.offset = (uint64_t) solicitar_pagina(0);
     llenar_memoria((void*)idtr.offset, 0, 4096);
     // para futura implementaciones https://wiki.osdev.org/Interrupt_Vector_Table
     set_idt_handler((uint64_t)Fallo_pagina,0x0E,ITD_TA_Interrupcion,0x28);
@@ -116,7 +116,7 @@ void iniciar_interrupciones(){
     remap_pic();
     iniciar_timer(1);
     iniciar_teclado();
-    outb(PIC1_DATA,0x80); // IRQ 0 (timer) IRQ1 (teclado) 1000 0000 
+    outb(PIC1_DATA,0x80); 
 	outb(PIC2_DATA,0xef);
     printf("Terminando las interrupciones \n");
     __asm__("sti"); //habilitar interrupciones
