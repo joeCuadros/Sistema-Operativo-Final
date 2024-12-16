@@ -1,6 +1,7 @@
 #include "proceso.h"
 #include "../printf/printf.h"
 extern volatile struct proceso *procesoActual;
+extern volatile uint16_t contador_timer;
 #define NUEVO       0
 #define LISTO       1
 #define EJECUTANDO  2
@@ -12,6 +13,14 @@ int procesoImprimir100(struct datos* datos){
     datos->numero++;
     printf("(P %s %d) -> PID (%d)",datos->mensaje,datos->numero,procesoActual->pid);
     if (datos->numero < 100) {return -1;}
+    return 0;
+}
+// proceso que imprime hasta el 100
+int procesoImprimir_0(struct datos* datos){
+    datos->numero--;
+    printf("(P %s %d) PID (%d) \n",datos->mensaje,datos->numero,procesoActual->pid);
+    if (datos->numero > 0) { return -1;}
+    printf("termino proceso PID (%d)  %d ",procesoActual->pid,contador_timer);
     return 0;
 }
 // proceso fantasma

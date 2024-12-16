@@ -21,5 +21,6 @@ struct proceso{
 };
 
 int procesoImprimir100(struct datos* datos);
+int procesoImprimir_0(struct datos* datos);
 int procesoInfinto(struct datos* datos);
 #endif

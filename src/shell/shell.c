@@ -28,11 +28,17 @@ void manejar_teclado(char caracter) {
     }
 }
 // crear proceso
-void crearProceso1(char * parte1){
+void crearProceso1(char * parte){
     struct datos datos2;
     datos2.numero = 0;
-    asignar_cadena(datos2.mensaje,parte1);
+    asignar_cadena(datos2.mensaje,parte);
     agregarProceso(procesoImprimir100,&datos2,1);
+}
+void crearProceso2(char * parte){
+    struct datos datos2;
+    datos2.numero = 0;
+    asignar_cadena(datos2.mensaje,parte);
+    agregarProceso(procesoInfinto,&datos2,1);
 }
 
 
@@ -49,6 +55,10 @@ void comandoBuscar(char * cadena){
     }else if (comparar_subcadenas("crearProceso1[", cadena)){
         separar_cadena(cadena, &parte1, &parte2);
         crearProceso1(parte2);
+    // crear proceso 2 plano
+    }else if (comparar_subcadenas("crearProceso1[", cadena)){
+        separar_cadena(cadena, &parte1, &parte2);
+        crearProceso2(parte2);
     // eliminar proceso 
     }else if (comparar_subcadenas("kill[", cadena)){
         separar_cadena(cadena, &parte1, &parte2);

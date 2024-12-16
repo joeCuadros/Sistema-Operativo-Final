@@ -22,6 +22,7 @@ volatile uint64_t actual;
 volatile uint32_t proceso_colocar = 0; 
 volatile uint32_t pidDisponible = 1; // 0 es kernel 
 volatile uint16_t procesos_listos;
+volatile uint16_t contador_timer;
 // compartidos
 volatile struct proceso * procesoActual;
 
@@ -137,6 +138,7 @@ void iniciar_planificador(){
     pit->tiempo = 0;
     procesos_listos = 0;
     actual = 0;
+    contador_timer = 0; // para evaluar 
 }
 
 // planificador
@@ -144,6 +146,8 @@ void aumentar_timer(){
     pit->contador += 1;
     if (pit->contador % 10 == 0 && procesos_listos != 0){ //ajutar tiempo por cada Quantum 
         pit->quantum += 1;
+        contador_timer++;
+            
         if (procesoActual->estado != LISTO && procesoActual->estado != EJECUTANDO){
             scheduler_RR();
             return;

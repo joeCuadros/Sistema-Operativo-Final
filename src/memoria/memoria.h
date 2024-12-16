@@ -34,11 +34,5 @@ void iniciar_memoria();
 // solicitudes de paginas
 void * solicitar_pagina (uint32_t pid);
 void liberar_pagina(void* direccion,uint32_t pid);
-void leer_pagina(void* destino, void* direccion_pagina,uint32_t pid);
-void escribir_pagina(void* direccion_pagina, void* origen,uint32_t pid);
-// permisos
-void ver_permisos (void* direccion);
-void set_usuario (void* direccion, struct permisos usuario_nuevo, uint32_t pid);
-void set_demas (void* direccion, struct permisos demas_nuevo, uint32_t pid);
 void copiar_bloque(const void* origen, void* destino, uint64_t n); // copiar bloque
 #endif

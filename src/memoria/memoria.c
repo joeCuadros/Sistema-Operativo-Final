@@ -94,68 +94,6 @@ void * solicitar_pagina (uint32_t pid){
 
     return (void*) ((uint8_t*) memoria_trabajo.base + (ultimo_pagina * 0x1000));
 }
-// leer pagina
-void leer_pagina(void* destino, void* direccion_pagina,uint32_t pid){
-    printf("Leyendo pagina en PID %d", pid);
-    uint64_t direccion_uint64 = (uint64_t) direccion_pagina;
-    uint64_t indice_pagina = normalizar(direccion_uint64);
-    if (region_memoria[indice_pagina].pid == pid && region_memoria[indice_pagina].usuario.lectura) {
-        copiar_bloque(direccion_pagina, destino, MAXIMO_pagina); // Copiar de direccion_pagina a destino
-    } else if(region_memoria[indice_pagina].demas.lectura){
-        copiar_bloque(direccion_pagina, destino, MAXIMO_pagina); 
-    } else {
-        error_kernel(pid, "memoria", "No tiene permiso escritura");
-    }
-    
-}   
-// escribir pagina
-void escribir_pagina(void* direccion_pagina, void* origen,uint32_t pid){
-    printf("Escribiendo pagina en PID %d", pid);
-    uint64_t direccion_uint64 = (uint64_t) direccion_pagina;
-    uint64_t indice_pagina = normalizar(direccion_uint64);
-    if (region_memoria[indice_pagina].pid == pid && region_memoria[indice_pagina].usuario.escritura) {
-        copiar_bloque(origen, direccion_pagina, MAXIMO_pagina); // Copiar de origen a direccion_pagina
-    } else if(region_memoria[indice_pagina].demas.escritura){
-        copiar_bloque(origen, direccion_pagina, MAXIMO_pagina);
-    } else {
-        error_kernel(pid, "memoria", "No tiene permiso escritura");
-    }
-    
-}  
-// permisos 
-void ver_permisos (void* direccion){
-    uint64_t direccion_uint64 = (uint64_t) direccion;
-    uint64_t indice_pagina = normalizar(direccion_uint64);
-    // comprobar si usuario
-    printf("Propietario (PID): %llx ", region_memoria[indice_pagina].pid);
-    (region_memoria[indice_pagina].usuario.lectura) ? printf("R") : printf("-");
-    (region_memoria[indice_pagina].usuario.escritura) ? printf("W") : printf("-");
-    (region_memoria[indice_pagina].usuario.ejecutable) ? printf("X") : printf("-");
-    printf("\t");
-    (region_memoria[indice_pagina].demas.lectura) ? printf("R") : printf("-");
-    (region_memoria[indice_pagina].demas.escritura) ? printf("W") : printf("-");
-    (region_memoria[indice_pagina].demas.ejecutable) ? printf("X") : printf("-");
-    printf("\n");
-}
-
-void set_usuario (void* direccion, struct permisos usuario_nuevo,uint32_t pid){
-    uint64_t direccion_uint64 = (uint64_t) direccion;
-    uint64_t indice_pagina = normalizar(direccion_uint64);
-    if (region_memoria[indice_pagina].pid == pid){
-        region_memoria[indice_pagina].usuario = usuario_nuevo;
-    }else{
-        error_kernel(pid, "memoria permisos", "No puede alterar permiso");
-    }
-}
-void set_demas (void* direccion, struct permisos demas_nuevo,uint32_t pid){
-    uint64_t direccion_uint64 = (uint64_t) direccion;
-    uint64_t indice_pagina = normalizar(direccion_uint64);
-    if (region_memoria[indice_pagina].pid == pid){
-        region_memoria[indice_pagina].demas = demas_nuevo;
-    }else{
-        error_kernel(pid, "memoria permisos", "No puede alterar permiso");
-    }
-}
 
 // iniciar paginas de memoria
 void iniciar_paginas(){
