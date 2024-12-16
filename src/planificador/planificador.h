@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include "proceso.h"
 #define quantumTotal 5 //round robin Q=5
-#define ProcesoTotales 10 // por cada prioridad
+#define ProcesoTotales 20 // por cada prioridad
 
 // para el timer
 struct Pit {

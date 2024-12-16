@@ -69,7 +69,10 @@ __attribute__((interrupt, target("no-sse", "no-mmx", "no-3dnow"))) void Excepcio
 
 __attribute__((interrupt, target("no-sse", "no-mmx", "no-3dnow"))) void Fallo_pagina(struct marco_interrupciones* marco){
     (void)marco;
-    printf("Fallo de pagina \n");
+    uint64_t direccion_fallo;
+    __asm__ volatile ("mov %%cr2, %0" : "=r"(direccion_fallo));
+
+    printf("Fallo de pagina en la direccion: %p\n", (void*)direccion_fallo);
     while (1);
 }
 
@@ -116,7 +119,7 @@ void iniciar_interrupciones(){
     remap_pic();
     iniciar_timer(1);
     iniciar_teclado();
-    outb(PIC1_DATA,0x80); 
+    outb(PIC1_DATA,0xC0); 
 	outb(PIC2_DATA,0xef);
     printf("Terminando las interrupciones \n");
     __asm__("sti"); //habilitar interrupciones

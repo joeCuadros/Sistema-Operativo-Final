@@ -33,6 +33,7 @@ void crearProceso0(){
     datos2.numero = 0;
     agregarProceso(procesoInfinto,&datos2,1);
 }
+//crear proceso del 1 al 100
 void crearProceso1(char * parte){
     struct datos datos2;
     datos2.numero = 0;
@@ -46,6 +47,24 @@ void crearProceso2(){
     agregarProceso(procesoImprimir_0,&datos2,1);
 }
 
+void accionarVariosProcesos(){
+    struct datos datos1;
+    datos1.numero = 20;
+    asignar_cadena(datos1.mensaje,"A");
+    agregarProceso(procesoImprimir_0,&datos1,1);
+    struct datos datos2;
+    datos2.numero = 13;
+    asignar_cadena(datos2.mensaje,"B");
+    agregarProceso(procesoImprimir_0,&datos2,1);
+    struct datos datos3;
+    datos3.numero = 22;
+    asignar_cadena(datos3.mensaje,"C");
+    agregarProceso(procesoImprimir_0,&datos3,1);
+    struct datos datos4;
+    datos4.numero = 8;
+    asignar_cadena(datos4.mensaje,"D");
+    agregarProceso(procesoImprimir_0,&datos4,1);
+}   
 
 // buscar comando 
 void comandoBuscar(char * cadena){
@@ -56,6 +75,9 @@ void comandoBuscar(char * cadena){
     // listar
     }else if (comparar_cadenas("ps",cadena)){
         listaProcesos();
+    // listar
+    }else if (comparar_cadenas("run1",cadena)){
+        accionarVariosProcesos();
     // crear proceso
     }else if (comparar_subcadenas("crearProceso2[", cadena)){
         separar_cadena(cadena, &parte1, &parte2);
@@ -76,34 +98,11 @@ void comandoBuscar(char * cadena){
             return;
         }
         eliminarProceso(pid); //eliminar proceso
-    // ver memoria RAM por regiones 
-    }else if (comparar_subcadenas("verMemoriaRegion[", cadena)){
-        separar_cadena(cadena, &parte1, &parte2);
-        uint32_t cantidad = convertir_a_entero(parte2);   
-        if (cantidad == 0){ // es erroneo y no valido
-            printf("Cantidad Invalida\n");
-            return;
-        }
-        estado_memoria_RAM(cantidad);
-    // ver memoria RAM por pid 
-    }else if (comparar_subcadenas("verMemoria[", cadena)){
-        separar_cadena(cadena, &parte1, &parte2);
-        uint32_t pid = convertir_a_entero(parte2);  // si no da que sea del sistema 
-        if (pid== 0){ // es erroneo y no valido
-            printf("No existe el pid o restringido\n");
-        estado_memoria_RAM_pid(pid);
-        }
-    // ver paginas de RAM
-    }else if (comparar_cadenas("verRam", cadena)){
-        paginasUsadas();
     // ayuda
     }else if (comparar_cadenas("help",cadena)){
+        printf("run1: Crear 4 procesos\n");
         printf("crearProceso0: Crear proceso fantasma\n");
         printf("crearProceso1[<mensaje>]: Imprime Mensaje de 1 - 100\n");
-        //printf("crearProceso2[<mensaje>,<cantidad>]: Imprimer mensaje desde x a 0\n");
-        printf("verMemoriaRegion[<cantidad>]: Ver la cantidad de paginas \n");
-        printf("verMemoria[<pid>]: Ver la cantidad de paginas del pid \n");
-        printf("verRam: Ver la cantidad de paginas de RAM disponibles \n");
         printf("kill[<pid>]: Eliminar proceso\n");
         printf("clear: Limpiar consola\n");
         printf("ps: Listar Proceso\n");
@@ -114,7 +113,7 @@ void comandoBuscar(char * cadena){
 
 // shell para ejecutar
 int shell_comandos(struct datos* datos){
-    printf("> %s ",datos->mensaje);
+    printf("> ");
     habilitar_teclado(manejar_teclado);
     datos->numero = 0;
     return 1; //esperando

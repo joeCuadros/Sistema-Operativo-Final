@@ -14,10 +14,12 @@ void descansar(){
         __asm__ ("hlt"); //dormir cpu
     } 
 }
-
+void ejecutar_kernel_exp();
 void _start() {   
+    __asm__ ("cli"); // deshabilitar
     iniciar_memoria();
     iniciar_planificador();
+    __asm__ ("sti"); //habilitar
     iniciar_interrupciones();
     
     // colocar
@@ -26,17 +28,5 @@ void _start() {
     struct datos datosX= {0,"Joe"};
     agregarProceso(shell_comandos,&datosX,0);  
     scheduler_RR(); // ejecutar
-    
-   
     descansar(); //dormir
 }
-
-/*
-struct datos datos1= {10,"A"};
-agregarProceso(procesoInfinto,&datos1,1);
-//agregarProceso(procesoInfinto,&datos1,1);
-struct datos datos2= {20,"B"};
-agregarProceso(procesoImprimir_0,&datos2,1);
-struct datos datos3= {31,"C"};
-agregarProceso(procesoImprimir_0,&datos3,1);
-*/

@@ -13,21 +13,17 @@ struct uefi_memory_region memoria_trabajo = {
     .base = 0
 };
 
-uint64_t ultimo_pagina_RAM;
+uint64_t ultimo_pagina;
 uint64_t total_paginas;
-uint64_t total_paginas_RAM;
-uint64_t total_paginas_DISCO;
-struct pagina_info *region_memoria_RAM;
-struct pagina_info *region_memoria_DISCO;
+struct pagina_info *region_memoria;
 
-// region_memoria_RAM --------------------------------------------------------------------------------------------
 void bloquear_pagina(uint64_t pagina){
-    region_memoria_RAM[pagina].estado = 1;
-    ultimo_pagina_RAM = pagina;
+    region_memoria[pagina].estado = 1;
+    ultimo_pagina = pagina;
 }
 
 void desbloquear_pagina(uint64_t pagina){
-    region_memoria_RAM[pagina].estado = 0;
+    region_memoria[pagina].estado = 0;
 }
 
 // copiar y escribir
@@ -48,97 +44,126 @@ uint64_t normalizar (uint64_t direccion_uint64){
     return DIRECCION_A_pagina(direccion_normalizada);
 }
 
+
+
 // eliminacion logico del recurso 
 void liberar_pagina(void* direccion, uint32_t pid){
     uint64_t direccion_uint64 = (uint64_t) direccion;
     uint64_t indice_pagina = normalizar(direccion_uint64);
-    if (region_memoria_RAM[indice_pagina].pid != pid){
+    if (region_memoria[indice_pagina].pid != pid){
         error_kernel(pid,"memoria","No se puede liberar pagina que no tienes permiso");
         return ;
     }
 
-    if (region_memoria_RAM[indice_pagina].estado == 0){
+    if (region_memoria[indice_pagina].estado == 0){
         error_kernel(pid,"memoria","Se intenta liberar pagina que no esta bloqueada");
         return ;
     }
     desbloquear_pagina(indice_pagina);
-    if (region_memoria_RAM[indice_pagina].estado == 1){
+    if (region_memoria[indice_pagina].estado == 1){
         kernel_panic("Fallo al liberar pagina");
     }
 }
 
 // solicitar pagina nuevo (NO OLVIDAR)
 void * solicitar_pagina (uint32_t pid){
-    uint64_t primero = ultimo_pagina_RAM-1;
+    uint64_t primero = ultimo_pagina-1;
 
-    while(region_memoria_RAM[ultimo_pagina_RAM].estado){ // 1 = true, 0 = false
-        if(ultimo_pagina_RAM >= total_paginas_RAM){
-            ultimo_pagina_RAM = 0;
+    while(region_memoria[ultimo_pagina].estado){ // 1 = true, 0 = false
+        if(ultimo_pagina >= total_paginas){
+            ultimo_pagina = 0;
         }  
-        if (ultimo_pagina_RAM == primero){
+        if (ultimo_pagina == primero){
             kernel_panic("No hay memoria disponible ");//implementar algoritmo de recolocacion (NO OLVIDAR)
         }
-        ultimo_pagina_RAM++;
+        ultimo_pagina++;
     }
 
-    bloquear_pagina(ultimo_pagina_RAM);
-    region_memoria_RAM[ultimo_pagina_RAM].pid = pid;
+    bloquear_pagina(ultimo_pagina);
+    region_memoria[ultimo_pagina].pid = pid;
+    region_memoria[ultimo_pagina].demas.ejecutable = 0;
+    region_memoria[ultimo_pagina].demas.escritura = 0;
+    region_memoria[ultimo_pagina].demas.lectura = 0;
+    region_memoria[ultimo_pagina].usuario.ejecutable = 0;
+    region_memoria[ultimo_pagina].usuario.escritura = 1;
+    region_memoria[ultimo_pagina].usuario.lectura = 1;
 
-    if (region_memoria_RAM[ultimo_pagina_RAM].estado == 0){
+    if (region_memoria[ultimo_pagina].estado == 0){
         kernel_panic("Fallo al solicitar pagina");
     }
 
-    return (void*) ((uint8_t*) memoria_trabajo.base + (ultimo_pagina_RAM * 0x1000));
+    return (void*) ((uint8_t*) memoria_trabajo.base + (ultimo_pagina * 0x1000));
 }
-void estado_memoria_RAM(uint32_t verTotal) {
-    uint32_t i = 0, activas = 0;
+// leer pagina
+void leer_pagina(void* destino, void* direccion_pagina,uint32_t pid){
+    printf("Leyendo pagina en PID %d", pid);
+    uint64_t direccion_uint64 = (uint64_t) direccion_pagina;
+    uint64_t indice_pagina = normalizar(direccion_uint64);
+    if (region_memoria[indice_pagina].pid == pid && region_memoria[indice_pagina].usuario.lectura) {
+        copiar_bloque(direccion_pagina, destino, MAXIMO_pagina); // Copiar de direccion_pagina a destino
+    } else if(region_memoria[indice_pagina].demas.lectura){
+        copiar_bloque(direccion_pagina, destino, MAXIMO_pagina); 
+    } else {
+        error_kernel(pid, "memoria", "No tiene permiso escritura");
+    }
+    
+}   
+// escribir pagina
+void escribir_pagina(void* direccion_pagina, void* origen,uint32_t pid){
+    printf("Escribiendo pagina en PID %d", pid);
+    uint64_t direccion_uint64 = (uint64_t) direccion_pagina;
+    uint64_t indice_pagina = normalizar(direccion_uint64);
+    if (region_memoria[indice_pagina].pid == pid && region_memoria[indice_pagina].usuario.escritura) {
+        copiar_bloque(origen, direccion_pagina, MAXIMO_pagina); // Copiar de origen a direccion_pagina
+    } else if(region_memoria[indice_pagina].demas.escritura){
+        copiar_bloque(origen, direccion_pagina, MAXIMO_pagina);
+    } else {
+        error_kernel(pid, "memoria", "No tiene permiso escritura");
+    }
+    
+}  
+// permisos 
+void ver_permisos (void* direccion){
+    uint64_t direccion_uint64 = (uint64_t) direccion;
+    uint64_t indice_pagina = normalizar(direccion_uint64);
+    // comprobar si usuario
+    printf("Propietario (PID): %llx ", region_memoria[indice_pagina].pid);
+    (region_memoria[indice_pagina].usuario.lectura) ? printf("R") : printf("-");
+    (region_memoria[indice_pagina].usuario.escritura) ? printf("W") : printf("-");
+    (region_memoria[indice_pagina].usuario.ejecutable) ? printf("X") : printf("-");
+    printf("\t");
+    (region_memoria[indice_pagina].demas.lectura) ? printf("R") : printf("-");
+    (region_memoria[indice_pagina].demas.escritura) ? printf("W") : printf("-");
+    (region_memoria[indice_pagina].demas.ejecutable) ? printf("X") : printf("-");
+    printf("\n");
+}
 
-    while (i < total_paginas_RAM && activas < verTotal) {  
-        if (region_memoria_RAM[i].estado == 1) {  
-            printf("Region de memoria con pid: %d\n", region_memoria_RAM[i].pid); 
-            activas++;
-        }
-        i++;
+void set_usuario (void* direccion, struct permisos usuario_nuevo,uint32_t pid){
+    uint64_t direccion_uint64 = (uint64_t) direccion;
+    uint64_t indice_pagina = normalizar(direccion_uint64);
+    if (region_memoria[indice_pagina].pid == pid){
+        region_memoria[indice_pagina].usuario = usuario_nuevo;
+    }else{
+        error_kernel(pid, "memoria permisos", "No puede alterar permiso");
     }
 }
-void estado_memoria_RAM_pid(uint32_t pid){
-    uint32_t i = 0;
-
-    while (i < total_paginas_RAM) {  
-        if (region_memoria_RAM[i].pid == pid) {  
-            printf("Region de memoria con pid: %d estado(%d)\n", region_memoria_RAM[i].pid, region_memoria_RAM[i].estado); 
-        }
-        i++;
+void set_demas (void* direccion, struct permisos demas_nuevo,uint32_t pid){
+    uint64_t direccion_uint64 = (uint64_t) direccion;
+    uint64_t indice_pagina = normalizar(direccion_uint64);
+    if (region_memoria[indice_pagina].pid == pid){
+        region_memoria[indice_pagina].demas = demas_nuevo;
+    }else{
+        error_kernel(pid, "memoria permisos", "No puede alterar permiso");
     }
 }
-void paginasUsadas(){
-    uint32_t i = 0, activas = 0;
 
-    while (i < total_paginas_RAM) {  
-        if (region_memoria_RAM[i].estado == 0) {  
-            activas++;
-        }
-        i++;
-    }
-    printf("%d / %d Paginas Disponibles\n",activas,total_paginas_RAM);
-}
-// region_memoria_DISCO --------------------------------------------------------------------------------------------
-
-
-
-// Configuracion inicial --------------------------------------------------------------------------------------------
 // iniciar paginas de memoria
 void iniciar_paginas(){
     total_paginas = memoria_trabajo.lenght / 0x1000; //4096 en hexadecimal
-    total_paginas_RAM = total_paginas / 2;
-    total_paginas_DISCO = total_paginas - total_paginas_RAM;
     printf("Total de paginas %x\n",total_paginas);
-    printf("Total de paginas RAM %x\n",total_paginas_RAM);
-    printf("Total de paginas DISCO %x\n",total_paginas_DISCO);
-
-    region_memoria_RAM = (struct pagina_info *)memoria_trabajo.base;
-    llenar_memoria((void*)region_memoria_RAM, 0, total_paginas_RAM); 
-    for (uint64_t i = 0; i < (total_paginas_RAM / 0x1000); i++ ){
+    region_memoria = (struct pagina_info *)memoria_trabajo.base;
+    llenar_memoria((void*)region_memoria, 0, total_paginas); 
+    for (uint64_t i = 0; i < (total_paginas / 0x1000); i++ ){
         bloquear_pagina(i);
     }
 }
