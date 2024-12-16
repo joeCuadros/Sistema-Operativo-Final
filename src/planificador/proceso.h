@@ -2,6 +2,7 @@
 #ifndef _PROCESO_H
 #define _PROCESO_H
 #include <stdint.h>
+#include "../printf/printf.h"
 
 // sizeof(Estructura)
 struct datos{
@@ -19,5 +20,6 @@ struct proceso{
     struct datos *datosProceso;
 };
 
-
+int procesoImprimir100(struct datos* datos);
+int procesoInfinto(struct datos* datos);
 #endif

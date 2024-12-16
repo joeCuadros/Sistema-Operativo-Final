@@ -25,5 +25,5 @@ void recibir_codigo(uint8_t codigo);
 void habilitar_teclado(void (*evento_teclado)(char));
 void deshabilitar_teclado();
 void esperar_enter();
-int manejar_teclado(char caracter);
+
 #endif

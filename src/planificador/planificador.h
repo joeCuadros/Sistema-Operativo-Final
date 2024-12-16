@@ -15,7 +15,8 @@ struct Pit {
 void iniciar_timer(int tiempo);
 void aumentar_timer();
 void iniciar_planificador();
-void scheduler();
+void scheduler_RR();
 void agregarProceso(operacion_t operacion, struct datos *datos, uint8_t prioridad);
-
+void listaProcesos();
+void eliminarProceso(uint32_t pid);
 #endif

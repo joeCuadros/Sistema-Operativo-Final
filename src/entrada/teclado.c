@@ -33,7 +33,7 @@ char codigo_caracter(uint8_t codigo, uint8_t mayuscula){
 void recibir_codigo(uint8_t codigo){
     switch(codigo){
         case Space:
-            printf(" ");
+            if (evento_teclado != 0) evento_teclado(' '); 
             return;
         case Izq_Shift:
             teclado->Izq_Shift_estado = 1;
@@ -81,13 +81,4 @@ void esperar_enter(){
             return;
         }
     }
-}
-void manejar_teclado(char caracter) {
-    if (caracter == '\n'){
-        printf("\n");
-    }else if (caracter == '\b'){
-        printf("\b \b");
-    }else {
-        printf("Apreto %c", caracter);
-    } 
 }
