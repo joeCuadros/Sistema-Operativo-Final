@@ -3,6 +3,7 @@
 #include "../printf/printf.h"
 #include "proceso.h"
 #include "../memoria/memoria.h"
+#include "../util/string.h"
 #define PIT_A 0x40
 #define PIT_CONTROL 0x43
 
@@ -15,72 +16,36 @@
 #define ESPERANDO   3
 #define TERMINADO   4
 
-struct Pit pit; //timer
+struct Pit *pit;//timer
 struct proceso procesos[ProcesoTotales]; //RR Q = 5
-volatile uint64_t actual = 0; 
-uint32_t proceso_colocar = 0; 
-uint32_t pidDisponible = 1; // 0 es kernel 
-volatile int flag_interrupcion = 0; //evitar optimizacion del compilador
+volatile uint64_t actual; 
+volatile uint32_t proceso_colocar = 0; 
+volatile uint32_t pidDisponible = 1; // 0 es kernel 
 volatile uint8_t restaurando = 0; //0 falso 1 verdadero
+volatile uint16_t procesos_listos;
+volatile struct proceso * procesoActual;
 
 // Controlador del timer
 void colocar_velocidad(int tiempo){
-    uint16_t divisor = (1193182/tiempo)/2;
+    uint16_t divisor = (1193182/tiempo)/2 ;
     outb(PIT_CONTROL, PIT_SET);  // Comando para configurar el PIT
     outb(PIT_A, divisor & PIT_MASK);  // Parte baja (8 bits)
     outb(PIT_A, (divisor >> 8) & PIT_MASK);  // Parte alta (8 bits)
 } 
 
 void iniciar_timer(int tiempo){
-    pit.tiempo = tiempo;
-    pit.contador = 0;
-    pit.quantum = 0;
+    pit->tiempo = tiempo;
+    pit->contador = 0;
+    pit->quantum = 0;
     colocar_velocidad(tiempo);
     printf("Se inicializa el timer con %x tiempo\n",tiempo);
 }
 
-void reiniciar_timer(){
-    pit.contador = 0;
-    pit.quantum = 0;
-}
-/*
-// planificador metodos
-void ejecutarProceso() {
-    struct proceso *proceso = &procesos[actual];
-    guardar_contexto(&contexto_general); //guardar cpu
-    if (flag_interrupcion == 0){
-        if (proceso->contexto == NULO){ // si no hay contexto
-            int resultado = proceso->operacion(proceso->memoria); //ejecutar programa
-            if (resultado == 0) { // termino bien
-                reiniciar_timer(); 
-                proceso->estado = TERMINADO; 
-                procesos->contexto = NULO;
-            }
-        }else{
-            restaurando = 1;
-            restaurar_contexto(proceso->contexto);
-        }      
-    } else{//interrupcion por reloj
-        flag_interrupcion = 0;
-    }
 
+int ejecutarProceso() {
+    int resultado = procesoActual->operacion(procesoActual->datosProceso);
+    return resultado;
 }
-
-void cambio_de_contexto(){
-    reiniciar_timer();
-    struct proceso *proceso = &procesos[actual];
-    proceso->estado = LISTO;
-    guardar_contexto(proceso->contexto);
-    // si el proceso regresa ejecuta como estaba
-    if (restaurando){
-        restaurando = 0;
-    }else{
-        escribir_pagina(proceso->memoria,proceso->datosProceso,proceso->pid); //guardar en memoria
-        flag_interrupcion = 1; // para realizar Cambio de contexto
-        restaurar_contexto(&contexto_general);
-    }
-}
-
 void agregarProceso(operacion_t operacion, struct datos *datos, uint8_t prioridad){
     uint32_t inicio = proceso_colocar;
     // buscar un nuevo 
@@ -96,39 +61,69 @@ void agregarProceso(operacion_t operacion, struct datos *datos, uint8_t priorida
     procesoNuevo->prioridad = prioridad;
     procesoNuevo->estado=LISTO;
     procesoNuevo->operacion = operacion;
-    procesoNuevo->datosProceso = datos;  
-    
+    procesoNuevo->datosProceso = (struct datos *)solicitar_pagina(procesoNuevo->pid);  
+    *(procesoNuevo->datosProceso) = *datos;
+    proceso_colocar = (proceso_colocar + 1) % ProcesoTotales;
+    procesos_listos++;
     pidDisponible++; //para el siguente proceso
 }
 
-// planificador
-void round_robin_scheduler(){
-    while(1) {
-        struct proceso* proceso = &procesos[actual];
-        if (proceso->estado == LISTO){
-            proceso->estado = EJECUTANDO;
-            ejecutarProceso(proceso->operacion,proceso->memoria);
-        }
-        actual = (actual + 1) % ProcesoTotales;
+// planificador buscar proceso
+void scheduler(){
+    // buscar proceso
+    if (procesos_listos == 0) {
+        printf("No hay procesos listos\n");
+        return;
     }
+    uint64_t inicio = actual;
+    actual = (actual + 1) % ProcesoTotales; //buscar siguente proceso
+    while (procesos[actual].estado != LISTO){
+        actual = (actual + 1) % ProcesoTotales;
+        if(inicio == actual){
+            printf("np_eje");
+            return;
+        }
+    }
+    procesoActual = &procesos[actual];
 }
 
+
+
 void iniciar_planificador(){
+    pit = (struct Pit *) solicitar_pagina(0);
     for (uint16_t i=0; i < ProcesoTotales; i++){
         procesos[i].estado = NUEVO; 
-        procesos[i].contexto = NULO;
     }
+    pit->contador = 0;
+    pit->quantum = 0;
+    pit->tiempo = 0;
+    procesos_listos = 0;
+    actual = 0;
 }
-*/
-// timer 
+
+// planificador
 void aumentar_timer(){
-    pit.contador += 1;
-    if (pit.contador % 100 == 0){ //ajutar tiempo por cada Quantum 
-        pit.quantum += 1;
-        if (pit.quantum == quantumTotal){
-            //cambio_de_contexto();
-            printf("Tiempo "); 
+    pit->contador += 1;
+    if (pit->contador % 10 == 0 && procesos_listos != 0){ //ajutar tiempo por cada Quantum 
+        pit->quantum += 1;
+        int resultado = ejecutarProceso(); //ejecutar 1 
+        if (resultado == 0){
+            procesoActual->estado = TERMINADO;
+            procesos_listos--; 
+            scheduler(); //invocar planificador
+            return;
+        }else if (resultado == 1){
+            procesoActual->estado = ESPERANDO;
+            procesos_listos--; 
+            scheduler(); //invocar planificador
+            return;
         }
-        printf("%x Quatum ",pit.quantum); 
+        if (pit->quantum == quantumTotal && resultado == -1){
+            printf("[Cambio contexto]");
+            procesoActual->estado = LISTO;
+            pit->quantum = 0;
+            scheduler(); //invocar planificador
+            return;
+        }
     }
 }

@@ -34,6 +34,7 @@
 #include <stdint.h>
 #include "kernel_print.h"
 #include "printf.h"
+#include "../io/bajo_nivel.h"
 
 
 // define this globally (e.g. gcc -DPRINTF_INCLUDE_CONFIG_H ...) to include the
@@ -861,11 +862,13 @@ static int _vsnprintf(out_fct_type out, char* buffer, const size_t maxlen, const
 
 int printf_(const char* format, ...)
 {
+  cli_asm();
   va_list va;
   va_start(va, format);
   char buffer[1];
   const int ret = _vsnprintf(_out_char, buffer, (size_t)-1, format, va);
   va_end(va);
+  sti_asm();
   return ret;
 }
 

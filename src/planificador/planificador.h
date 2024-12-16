@@ -1,9 +1,9 @@
 #ifndef _PLANIFICADOR_H
 #define _PLANIFICADOR_H
 #include <stdint.h>
-
+#include "proceso.h"
 #define quantumTotal 5 //round robin Q=5
-#define ProcesoTotales 100 // por cada prioridad
+#define ProcesoTotales 10 // por cada prioridad
 
 // para el timer
 struct Pit {
@@ -14,6 +14,8 @@ struct Pit {
 
 void iniciar_timer(int tiempo);
 void aumentar_timer();
-
+void iniciar_planificador();
+void scheduler();
+void agregarProceso(operacion_t operacion, struct datos *datos, uint8_t prioridad);
 
 #endif

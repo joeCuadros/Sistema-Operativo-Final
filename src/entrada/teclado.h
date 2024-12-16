@@ -22,7 +22,8 @@ char codigo_caracter(uint8_t codigo, uint8_t mayuscula);
 void recibir_codigo(uint8_t codigo);
 
 // habilitar y deshabilitar
-void habilitar_teclado(void (*evento_teclado)(uint8_t));
+void habilitar_teclado(void (*evento_teclado)(char));
 void deshabilitar_teclado();
 void esperar_enter();
+int manejar_teclado(char caracter);
 #endif

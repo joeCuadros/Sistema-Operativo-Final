@@ -8,10 +8,10 @@
 /*simulando un proceso*/
 // proceso que se pueden usar como bash
 int procesoA(struct datos* datos){
-    datos->longitud = 0;
-    while(datos->longitud < 100){
-        printf("Solo proceso A");
-        datos->longitud++;
+    datos->numero = 0;
+    while(datos->numero < 100){
+        printf("Solo proceso %s %d\n",datos->mensaje,datos->numero);
+        datos->numero++;
     }
     return 0;
 }

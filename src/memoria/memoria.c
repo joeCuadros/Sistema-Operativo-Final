@@ -96,6 +96,7 @@ void * solicitar_pagina (uint32_t pid){
 }
 // leer pagina
 void leer_pagina(void* destino, void* direccion_pagina,uint32_t pid){
+    printf("Leyendo pagina en PID %d", pid);
     uint64_t direccion_uint64 = (uint64_t) direccion_pagina;
     uint64_t indice_pagina = normalizar(direccion_uint64);
     if (region_memoria[indice_pagina].pid == pid && region_memoria[indice_pagina].usuario.lectura) {
@@ -109,6 +110,7 @@ void leer_pagina(void* destino, void* direccion_pagina,uint32_t pid){
 }   
 // escribir pagina
 void escribir_pagina(void* direccion_pagina, void* origen,uint32_t pid){
+    printf("Escribiendo pagina en PID %d", pid);
     uint64_t direccion_uint64 = (uint64_t) direccion_pagina;
     uint64_t indice_pagina = normalizar(direccion_uint64);
     if (region_memoria[indice_pagina].pid == pid && region_memoria[indice_pagina].usuario.escritura) {

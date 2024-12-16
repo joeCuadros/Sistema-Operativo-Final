@@ -4,7 +4,7 @@
 #include "../printf/printf.h"
 
 volatile struct Teclado* teclado;
-void (*evento_teclado)(uint8_t);
+void (*evento_teclado)(char);
 
 char asciitabla[] = {
     0,   0, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', 0, 0,
@@ -49,22 +49,22 @@ void recibir_codigo(uint8_t codigo){
             return;
         case Enter:
             teclado->enter_teclado = 1;
-            printf("\n");
-            if (evento_teclado != 0) evento_teclado(Enter); 
+            //printf("\n");
+            if (evento_teclado != 0) evento_teclado('\n'); 
             return;
         case Backspace:
-            printf("\b \b");
-            if (evento_teclado != 0) evento_teclado(Backspace); 
+            //printf("\b \b");
+            if (evento_teclado != 0) evento_teclado('\b'); 
             return;   
     }
     char caracter = codigo_caracter(codigo, teclado->Der_Shift_estado || teclado->Izq_Shift_estado);
     if (caracter != 0){
-        printf("%c", caracter); 
+        //printf("%c", caracter); 
         if (evento_teclado != 0) evento_teclado(caracter);
     }
 }
 
-void habilitar_teclado(void (*funsion_teclado)(uint8_t)){
+void habilitar_teclado(void (*funsion_teclado)(char)){
     evento_teclado = funsion_teclado;
 }
 // deshabilitar teclado
@@ -81,4 +81,13 @@ void esperar_enter(){
             return;
         }
     }
+}
+void manejar_teclado(char caracter) {
+    if (caracter == '\n'){
+        printf("\n");
+    }else if (caracter == '\b'){
+        printf("\b \b");
+    }else {
+        printf("Apreto %c", caracter);
+    } 
 }

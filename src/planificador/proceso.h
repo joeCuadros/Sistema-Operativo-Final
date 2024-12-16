@@ -5,14 +5,14 @@
 
 // sizeof(Estructura)
 struct datos{
-    uint16_t longitud;
-    char *mensaje;
+    uint16_t numero;
+    char mensaje[256];
 };
 typedef int (*operacion_t)(struct datos*); 
 
 struct proceso{
     uint32_t pid;
-    uint8_t prioridad; //1 = interactivo, bash
+    uint8_t prioridad; //0 = interactivo,1 = bash
     uint8_t estado;
     operacion_t operacion;
     void * memoria;
