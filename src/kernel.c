@@ -10,7 +10,6 @@
 #include "shell/shell.h"
 
 void descansar(){
-    printf("A mimir zzzz \n");
     while(1) {
         __asm__ ("hlt"); //dormir cpu
     } 
@@ -20,20 +19,24 @@ void _start() {
     iniciar_memoria();
     iniciar_planificador();
     iniciar_interrupciones();
-    limpiar_pantalla();
+    
     // colocar
     printf("Ejecutando despues la configuracion inicial\n");
     printf("-------------------------------------------\n");
     struct datos datosX= {0,"Joe"};
     agregarProceso(shell_comandos,&datosX,0);  
-    struct datos datos1= {10,"A"};
-    agregarProceso(procesoInfinto,&datos1,1);
-    //agregarProceso(procesoInfinto,&datos1,1);
-    struct datos datos2= {20,"B"};
-    agregarProceso(procesoImprimir_0,&datos2,1);
     scheduler_RR(); // ejecutar
-    struct datos datos3= {31,"C"};
-    agregarProceso(procesoImprimir_0,&datos3,1);
+    
+   
     descansar(); //dormir
 }
 
+/*
+struct datos datos1= {10,"A"};
+agregarProceso(procesoInfinto,&datos1,1);
+//agregarProceso(procesoInfinto,&datos1,1);
+struct datos datos2= {20,"B"};
+agregarProceso(procesoImprimir_0,&datos2,1);
+struct datos datos3= {31,"C"};
+agregarProceso(procesoImprimir_0,&datos3,1);
+*/

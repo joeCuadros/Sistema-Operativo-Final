@@ -82,11 +82,11 @@ void agregarProceso(operacion_t operacion, struct datos *datos, uint8_t priorida
     uint32_t inicio = proceso_colocar;
     // buscar un nuevo 
     while (procesos[proceso_colocar].estado != NUEVO && procesos[proceso_colocar].estado != TERMINADO){
+        proceso_colocar = (proceso_colocar + 1) % ProcesoTotales;
         if (inicio == proceso_colocar){
             printf("No se puede colocar el proceso\n");
             return;
-        }
-        proceso_colocar = (proceso_colocar + 1) % ProcesoTotales;
+        }       
     }
     struct proceso *procesoNuevo = &procesos[proceso_colocar]; 
     procesoNuevo->pid=pidDisponible;
@@ -105,7 +105,6 @@ void agregarProceso(operacion_t operacion, struct datos *datos, uint8_t priorida
 void scheduler_RR(){
     // buscar proceso
     if (procesos_listos == 0) {
-        printf("No hay procesos listos\n");
         return;
     }
     uint64_t inicio = actual;
@@ -115,7 +114,6 @@ void scheduler_RR(){
     while (procesos[actual].estado != LISTO || procesos[actual].prioridad != prioridad){
         if(inicio == actual){
             if (prioridad == 1){ //limite
-                printf("no hay ningun proceso");
                 return;
             }else{
                 prioridad++;
@@ -156,7 +154,9 @@ void aumentar_timer(){
         int resultado = ejecutarProceso(); //ejecutar 1 
         if (resultado == 0){
             procesoActual->estado = TERMINADO;
+            liberar_pagina(procesoActual->datosProceso, procesoActual->pid);
             procesos_listos--; 
+            pit->quantum = 0;
             scheduler_RR(); //invocar planificador
             return;
         // espera entrada y salida

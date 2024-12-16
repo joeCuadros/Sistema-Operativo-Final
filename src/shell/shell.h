@@ -7,6 +7,7 @@
 #include "../printf/printf.h"
 #include "../util/string.h"
 #include "../io/bajo_nivel.h"
+#include "../memoria/memoria.h"
 
 void manejar_teclado(char caracter);
 int shell_comandos(struct datos* datos);
