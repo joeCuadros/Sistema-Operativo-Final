@@ -14,7 +14,7 @@ void descansar(){
         __asm__ ("hlt"); //dormir cpu
     } 
 }
-void ejecutar_kernel_exp();
+
 void _start() {   
     __asm__ ("cli"); // deshabilitar
     iniciar_memoria();

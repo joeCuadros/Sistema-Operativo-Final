@@ -167,7 +167,16 @@ void iniciar_paginas(){
         bloquear_pagina(i);
     }
 }
-
+//ver memoria
+void verMemoria(){
+    uint64_t activos = 0;
+    for (uint64_t i = 0; i < (total_paginas / 0x1000); i++ ){
+        if(region_memoria[i].estado == 0){
+            activos++;
+        }
+    }
+    printf("%d/%d memoria disponible",activos,(total_paginas / 0x1000));
+}
 //iniciar memoria para la busqueda de almacenamiento
 void iniciar_memoria(){
     uint64_t entradas = obtener_memoria_map_entrada();

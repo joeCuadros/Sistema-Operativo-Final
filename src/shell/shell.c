@@ -1,4 +1,5 @@
 #include "shell.h"
+#include "../memoria/memoria.h"
 #define MAX_CADENA 256  // Tamaño del buffer
 extern volatile struct proceso *procesoActual;
 // recepciona teclado
@@ -41,10 +42,11 @@ void crearProceso1(char * parte){
     agregarProceso(procesoImprimir100,&datos2,1);
 }
 
-void crearProceso2(){
+void crearProceso2(char * parte){
     struct datos datos2;
     datos2.numero = 0;
-    agregarProceso(procesoImprimir_0,&datos2,1);
+    asignar_cadena(datos2.mensaje,parte);
+    agregarProceso(procesoImprimir_0,&datos2,0);
 }
 
 void accionarVariosProcesos(){
@@ -76,6 +78,9 @@ void comandoBuscar(char * cadena){
     }else if (comparar_cadenas("ps",cadena)){
         listaProcesos();
     // listar
+    }else if (comparar_cadenas("free",cadena)){
+        verMemoria();
+    // listar
     }else if (comparar_cadenas("run1",cadena)){
         accionarVariosProcesos();
     // crear proceso
@@ -103,6 +108,8 @@ void comandoBuscar(char * cadena){
         printf("run1: Crear 4 procesos\n");
         printf("crearProceso0: Crear proceso fantasma\n");
         printf("crearProceso1[<mensaje>]: Imprime Mensaje de 1 - 100\n");
+        printf("crearProceso2[<mensaje>]: Imprime Mensaje de 1 - 100 prioridad 0\n");
+        printf("free: estado de memoria \n");
         printf("kill[<pid>]: Eliminar proceso\n");
         printf("clear: Limpiar consola\n");
         printf("ps: Listar Proceso\n");

@@ -1,8 +1,11 @@
 #include "proceso.h"
 #include "../printf/printf.h"
 #include "../memoria/memoria.h"
+#include "../io/bajo_nivel.h"
 extern volatile struct proceso *procesoActual;
 extern volatile uint16_t contador_timer;
+extern volatile void * memoriaUniversal;
+
 #define NUEVO       0
 #define LISTO       1
 #define EJECUTANDO  2

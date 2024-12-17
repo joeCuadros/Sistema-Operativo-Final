@@ -41,4 +41,5 @@ void ver_permisos (void* direccion);
 void set_usuario (void* direccion, struct permisos usuario_nuevo, uint32_t pid);
 void set_demas (void* direccion, struct permisos demas_nuevo, uint32_t pid);
 void copiar_bloque(const void* origen, void* destino, uint64_t n); // copiar bloque
+void verMemoria();
 #endif

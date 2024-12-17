@@ -23,6 +23,7 @@ volatile uint32_t proceso_colocar = 0;
 volatile uint32_t pidDisponible = 1; // 0 es kernel 
 volatile uint16_t procesos_listos;
 volatile uint16_t contador_timer;
+volatile void * memoriaUniversal = NULL; 
 // compartidos
 volatile struct proceso * procesoActual;
 
@@ -136,7 +137,7 @@ void iniciar_planificador(){
     pit->tiempo = 0;
     procesos_listos = 0;
     actual = 0;
-    contador_timer = 0; // para evaluar 
+    contador_timer = 0; // para evaluar
 }
 
 // planificador
